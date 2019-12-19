@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="lib/vue.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="lib/element-ui.js" type="text/javascript" charset="utf-8"></script>
+    <script src="lib/jquery-3.4.1.min.js" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript" src="lib/wangEditor/wangEditor.min.js"></script>
+    <script src="lib/jquery.md5.js" type="text/javascript" charset="utf-8"></script>
+    <link rel="stylesheet" type="text/css" href="lib/element-ui.css"/>
+    <link rel="stylesheet" type="text/css" href="css/newask.css"/>
+    <link rel="stylesheet" type="text/css" href="css/index.css"/>
+
+    <title>发布方案</title>
+</head>
+<body>
+<div id="app">
+    <header>
+        <div class="header">
+            <div><a href="/"><img class="img-logo" src="lib/logo1.png" alt=""></a></div>
+            <div class="plane-login">
+                <div v-show="islogin==0">
+                    <a href="#" @click="showLoginWindow=true">登录</a> | <a href="">注册</a>
+                </div>
+                <div v-show="islogin==1">
+
+                    <el-menu :default-active="menuActiveIndex" class="el-menu-demo" mode="horizontal">
+                        <el-submenu index="2">
+                            <template slot="title"><img
+                                    src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png" alt=""
+                                    class="nav-avatar">{{userinfo.name}}
+                            </template>
+                            <el-menu-item index="2-1">个人中心</el-menu-item>
+                            <el-menu-item index="2-2">设置</el-menu-item>
+                            <el-menu-item index="2-3" @click="exit">退出登录</el-menu-item>
+                        </el-submenu>
+                    </el-menu>
+                </div>
+            </div>
+        </div>
+    </header>
+    <main>
+        <div class="content">
+            <h2>发布方案</h2>
+            <div class="plane-askForm">
+                <el-input v-model="askform.title" class="input-title" maxlength="30" placeholder="方案名称"
+                          show-word-limit></el-input>
+                问题类型：
+                <el-select v-model="classvalue" placeholder="请选择">
+                    <el-option
+                            v-for="item in options"
+                            :key="item.id"
+                            :label="item.name"
+                            :value="item.id">
+                    </el-option>
+                </el-select>
+                <div id="mainEdit"></div>
+
+                <div class="plane-btn">
+                    <el-link type="info">保存草稿</el-link>
+                    <el-button type="primary" @click="sendPost">发布方案</el-button>
+                </div>
+            </div>
+
+        </div>
+        <transition name="el-zoom-in-center">
+            <div class="window-plane-login" v-show="showLoginWindow">
+                <div class="box-mask"></div>
+                <div class="box-login">
+                    <div class="plane-login-title">
+                        <div><b>登录账户</b></div>
+                        <div @click="closeLoginPlane"><i class="el-icon-close close"></i></div>
+                    </div>
+                    <div class="box-login-form">
+                        <div class="form-item">
+                            <el-input v-model="form.user" placeholder="账号"></el-input>
+                        </div>
+
+                        <div class="form-item">
+                            <el-input v-model="form.pass" placeholder="密码" show-password></el-input>
+                        </div>
+                        <div class="form-item form-set-right">
+                            <a href="#">忘记密码</a> | <a href="#">无法登录</a>
+                        </div>
+                        <div class="form-item form-set-right">
+                            <el-button type="primary" @click="login">登录</el-button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </transition>
+    </main>
+    <script>
+        (function ($) {
+            $.getUrlParam = function (name) {
+                var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+                var r = window.location.search.substr(1).match(reg);
+                if (r != null) return unescape(r[2]);
+                return null;
+            }
+        })(jQuery);
+
+
+        var vue = new Vue({
+            el: '#app',
+            mounted() {
+                this.init()
+            },
+            data: {
+                classvalue: '',
+                options: [{"color": "#F56C6C", "name": "JAVA", "id": 1}, {"color": "#67C23A", "name": "HTML", "id": 2}],
+                askform: {
+                    title: '',
+                    content: ''
+                },
+                form: {
+                    user: '',
+                    pass: ''
+                },
+                menuActiveIndex: 1,
+                islogin: 0,
+                userinfo: {
+                    name: ''
+                },
+                showLoginWindow: false
+            },
+            methods: {
+                init() {
+
+                    var that = this;
+                    $.get('user/loginInfo.do', function (data) {
+                        if (data != 0) {
+                            var obj = JSON.parse(data);
+                            that.islogin = 1;
+                            that.userinfo.name = obj.username;
+                        }
+                    });
+
+                    $.get('post/getaskclass.do', function (data) {
+                        that.options = data;
+                    });
+                },
+                login() {
+                    that = this;
+                    $.post('/user/login.do', {user: that.form.user, pass: $.md5(that.form.pass)}, function (data) {
+                        if (data == 1) {
+                            that.$message({type: 'success', message: '登录成功'});
+                            setTimeout(function () {
+                                window.location.reload();
+                            }, 3000);
+                        } else {
+                            that.$message({type: 'error', message: '账号或者密码错误'});
+                        }
+
+                    })
+                },
+                sendPost() {
+                    var postData = {title: this.askform.title, content: htmlEncode(editor.txt.html()),classid:this.classvalue};
+                    var that = this;
+                    $.post('post/newpost.do', {json: JSON.stringify(postData)}, function (data) {
+                        if (data.code == 1) {
+                            that.$message({
+                                message: data.msg,
+                                type: 'success'
+                            });
+                            setTimeout(function () {
+                                window.location.href="\\";
+                            }, 2000);
+                        } else {
+                            that.$message({
+                                message: data.msg,
+                                type: 'warning'
+                            });
+                        }
+                    });
+                },
+                exit() {
+                    that = this;
+                    $.get('/user/exit.do', function (data) {
+                        if (data == 1) {
+                            that.$message({message: '已退出'});
+                            setTimeout(function () {
+                                window.location.reload();
+                            }, 1000);
+                        } else {
+                            that.$message({type: 'error', message: '退出失败'});
+                        }
+                    })
+                },
+                closeLoginPlane() {
+                    this.showLoginWindow = false;
+                }
+            }
+        });
+        var E = window.wangEditor;
+        var editor = new E('#mainEdit');
+        editor.customConfig.uploadImgShowBase64 = true;
+        editor.customConfig.zIndex = 100;
+        editor.create();
+
+        function htmlEncode(value) {
+            return $('<div/>').text(value).html();
+        }
+
+        //Html解码获取Html实体
+        function htmlDecode(value) {
+            return $('<div/>').html(value).text();
+        }
+    </script>
+</div>
+</body>
+</html>

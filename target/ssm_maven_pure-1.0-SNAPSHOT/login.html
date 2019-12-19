@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="lib/vue.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="lib/element-ui.js" type="text/javascript" charset="utf-8"></script>
+    <script src="lib/jquery-3.4.1.min.js" type="text/javascript" charset="utf-8"></script>
+    <link rel="stylesheet" type="text/css" href="lib/element-ui.css"/>
+    <link rel="stylesheet" type="text/css" href="css/index.css"/>
+    <link rel="stylesheet" type="text/css" href="css/login.css"/>
+    <title>方案解决系统</title>
+</head>
+<body>
+<div id="app">
+    <header>
+        <div class="header">
+            <div><h2>登录账户</h2></div>
+            <div class="plane-login">
+            </div>
+        </div>
+    </header>
+    <main>
+        <div class="login-plane">
+            <div class="login-card">
+                登录系统
+            </div>
+            <div class="login-form">
+                <el-input v-model="form.user"></el-input>
+            </div>
+        </div>
+    </main>
+    <script>
+        new Vue({
+            el: '#app',
+            mounted() {
+                this.init()
+            },
+            data: {
+                test: '啊啊啊',
+                asklist: [],
+                form: {
+                    user: ''
+                }
+            },
+            methods: {
+                init() {
+                    var that = this;
+                    $.get('/ajax/getAsks.do', {num: 3}, function (data) {
+                        var obj = data;
+                        that.asklist = obj;
+                        console.log(obj);
+                    })
+                },
+                login() {
+                    this.$alert(' <el-input></el-input>', 'HTML 片段', {
+                        dangerouslyUseHTMLString: true
+                    });
+                }
+            }
+        })
+    </script>
+</div>
+</body>
+</html>

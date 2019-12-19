@@ -1,0 +1,17 @@
+.login-plane{
+    max-width: 800px;
+    margin:  16px auto;
+    display: flex;
+}
+.login-card{
+    width: 200px;
+    height: 400px;
+    padding: 24px;
+    background-image: linear-gradient(90deg, #9c4dff 0%, #f56c6c 100%);
+    color: #fff;
+}
+.login-form{
+    padding: 24px;
+    background: #fff;
+    width: 80%;
+}

@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="lib/vue.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="lib/element-ui.js" type="text/javascript" charset="utf-8"></script>
+    <script src="lib/jquery-3.4.1.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="lib/jquery.md5.js" type="text/javascript" charset="utf-8"></script>
+    <link rel="stylesheet" type="text/css" href="lib/element-ui.css"/>
+    <link rel="stylesheet" type="text/css" href="css/ask.css"/>
+    <link rel="stylesheet" type="text/css" href="css/index.css"/>
+    <title>方案解决系统</title>
+</head>
+<body>
+<div id="app">
+    <header>
+        <div class="header">
+            <div><a href="/"><img class="img-logo" src="lib/logo1.png" alt=""></a></div>
+            <div class="plane-login">
+                <div v-show="islogin==0">
+                    <a href="#" @click="showLoginWindow=true">登录</a> | <a href="">注册</a>
+                </div>
+                <div v-show="islogin==1">
+
+                    <el-menu :default-active="menuActiveIndex" class="el-menu-demo" mode="horizontal">
+                        <el-submenu index="2">
+                            <template slot="title"><img
+                                    src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png" alt=""
+                                    class="nav-avatar">{{userinfo.name}}
+                            </template>
+                            <el-menu-item index="2-1">个人中心</el-menu-item>
+                            <el-menu-item index="2-2">设置</el-menu-item>
+                            <el-menu-item index="2-3" @click="exit">退出登录</el-menu-item>
+                        </el-submenu>
+                    </el-menu>
+                </div>
+            </div>
+        </div>
+    </header>
+    <main>
+        <div class="content">
+            <div class="ask-title">
+                <h1>搜索结果</h1>
+            </div>
+            <div class="ask-ltem" v-for="ask in asklist">
+                <div class="ask-left">
+                 <span class="ask-class"><el-tag effect="dark" hit="true" style="border: none"
+                                                 size="small" :color="ask.classcolor">{{ask.classname}}</el-tag> </span>
+                    <div class="ask-title">
+                        <a :href="'ask.html?ask='+ask.id">{{ask.title}}</a>
+                    </div>
+                </div>
+                <div class="ask-right">
+                    <span class="ask-view"><el-tag effect="dark" type="info" size="small">{{ask.view}}</el-tag> </span>
+                </div>
+            </div>
+        </div>
+        <transition name="el-zoom-in-center">
+            <div class="window-plane-login" v-show="showLoginWindow">
+                <div class="box-mask"></div>
+                <div class="box-login">
+                    <div class="plane-login-title">
+                        <div><b>登录账户</b></div>
+                        <div @click="closeLoginPlane"><i class="el-icon-close close"></i></div>
+                    </div>
+                    <div class="box-login-form">
+                        <div class="form-item">
+                            <el-input v-model="form.user" placeholder="账号"></el-input>
+                        </div>
+
+                        <div class="form-item">
+                            <el-input v-model="form.pass" placeholder="密码" show-password></el-input>
+                        </div>
+                        <div class="form-item form-set-right">
+                            <a href="#">忘记密码</a> | <a href="#">无法登录</a>
+                        </div>
+                        <div class="form-item form-set-right">
+                            <el-button type="primary" @click="login">登录</el-button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </transition>
+    </main>
+    <footer class="fixed-bottom">
+        <div class="plane-footer">
+              方案解决系统 code by  ghpym.com
+        </div>
+    </footer>
+    <script>
+
+        (function ($) {
+            $.getUrlParam = function (name) {
+                var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+                var r = window.location.search.substr(1).match(reg);
+                if (r != null) return unescape(r[2]);
+                return null;
+            }
+        })(jQuery);
+        var vue = new Vue({
+            el: '#app',
+            mounted() {
+                this.init()
+            },
+            data: {
+                asklist: [],
+                askData: {},
+                form: {
+                    user: '',
+                    pass: ''
+                },
+                menuActiveIndex: 1,
+                islogin: 0,
+                userinfo: {
+                    name: ''
+                },
+                showLoginWindow: false
+            },
+            methods: {
+                init() {
+
+                    if ($.getUrlParam('key') == null) {
+                        return;
+                    }
+                    var that = this;
+                    $.get('/user/loginInfo.do', function (data) {
+                        if (data != 0) {
+                            var obj = JSON.parse(data);
+                            that.islogin = 1;
+                            that.userinfo.name = obj.username;
+                        }
+                    });
+                    $.get('/post/search.do', {key: $.getUrlParam('key')}, function (data) {
+                        that.asklist = data;
+                        console.log(data);
+                    })
+                },
+                login() {
+                    that = this;
+                    $.post('/user/login.do', {user: that.form.user, pass: $.md5(that.form.pass)}, function (data) {
+                        if (data == 1) {
+                            that.$message({type: 'success', message: '登录成功'});
+                            setTimeout(function () {
+                                window.location.reload();
+                            }, 3000);
+                        } else {
+                            that.$message({type: 'error', message: '账号或者密码错误'});
+                        }
+
+                    })
+                },
+                exit() {
+                    that = this;
+                    $.get('/user/exit.do', function (data) {
+                        if (data == 1) {
+                            that.$message({message: '已退出'});
+                            setTimeout(function () {
+                                window.location.reload();
+                            }, 1000);
+                        } else {
+                            that.$message({type: 'error', message: '退出失败'});
+                        }
+                    })
+                },
+                closeLoginPlane() {
+                    this.showLoginWindow = false;
+                }
+            }
+        });
+
+
+    </script>
+</div>
+</body>
+</html>

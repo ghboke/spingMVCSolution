@@ -1,0 +1,15 @@
+.content {
+    margin-top: 16px;
+    padding: 16px;
+    background: #fff;
+    border-radius: 8px;
+}
+
+.ask-title h1 {
+    font-size: 30px !important;
+    margin-bottom: 8px;
+    border-bottom: 1px dashed #eee;
+}
+.form-register{
+    width: 50%;
+}

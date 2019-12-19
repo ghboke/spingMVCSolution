@@ -1,0 +1,25 @@
+.content {
+    margin-top: 16px;
+    padding: 16px;
+    background: #fff;
+    border-radius: 8px;
+}
+
+.ask-title h1 {
+    font-size: 30px !important;
+    margin-bottom: 8px;
+    border-bottom: 1px dashed #eee;
+}
+.ask-content img{
+    max-width: 100%;
+}
+.ask-meta-span{
+    margin-left: 8px;
+}
+.ask-creattime{
+    color: #999;
+}
+.ask-meta {
+    display: flex;
+    justify-content: space-between;
+}
