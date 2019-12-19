@@ -1,10 +1,10 @@
-# spingMVCSolution
- 基于springMVC实现的解决方案系统
 ## 问题方案解决系统
 
 使用VUE+element+SpringMVC实现
 数据库使用mybatis实现。  
 项目管理使用maven仓库。  
+
+![image-20191219193942090](kj.png)
 
 前后端分离，纯前端，ajax请求数据。  
 
@@ -18,8 +18,11 @@
 删除文章  
 编辑方案  
 
-
 模块化结构，很方便后期拓展。
 改个名字就能二次开发了。
 
 适合期末答辩使用
+
+![shot](shot.png)
+
+![image-20191219194116349](shot2.png)
