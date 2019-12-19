@@ -26,3 +26,14 @@
 ![shot](shot.png)
 
 ![image-20191219194116349](shot2.png)
+
+## 部署
+
+1.开发工具为IDEA
+
+2.解压后，导入根目录的sql文件，然后，修改src\main\resources\jdbc.properties 文件，把里面的数据库账号密码修改成你的即可。  
+
+3.默认账号:aaa，密码123  
+
+
+
